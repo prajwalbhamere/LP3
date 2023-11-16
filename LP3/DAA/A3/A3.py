@@ -1,49 +1,66 @@
-class ItemValue:
-    """Item Value DataClass"""
+import random 
+import time
 
-    def __init__(self, wt_, val_, ind_):
-        self.wt = wt_
-        self.val = val_
-        self.ind = ind_
-        self.cost = val_ // wt_
+def deterministic_partition(arr, low, high):
+    pivot = arr[(low + high)//2]
+    i = low - 1
+    j = high + 1
+    while True:
+        i += 1
+        while arr[i] < pivot:
+            i += 1
+        j -= 1
+        while arr[j] > pivot:
+            j -= 1
+        if i >= j:
+            return j
+        arr[i], arr[j] = arr[j], arr[i]
 
-    def __lt__(self, other):
-        return self.cost < other.cost
+def deterministic_quicksort(arr, low, high):
+    if low < high:
+        pivot_index = deterministic_partition(arr, low, high)
+        deterministic_quicksort(arr, low, pivot_index)
+        deterministic_quicksort(arr, pivot_index + 1, high)
+    print("Output of Deterministic Quick Sort : ", arr)
 
+def randomised_partition(arr, low, high):
+    pivot_index = random.randint(low, high)
+    arr[pivot_index], arr[(low + high)//2] = arr[(low+high)//2], arr[pivot_index]
+    pivot = arr[(low + high)//2]
+    i = low - 1
+    j = high + 1
+    while True:
+        i += 1
+        while arr[i] < pivot:
+            i += 1
+        j -= 1
+        while arr[j] > pivot:
+            j -= 1    
+        if i >= j:
+            return j
+        arr[i], arr[j] = arr[j], arr[i]
 
-def fractionalKnapSack(wt, val, capacity):
-    """Function to get maximum value"""
-    iVal = [ItemValue(wt[i], val[i], i) for i in range(len(wt))]
+def randomised_quicksort(arr, low, high):
+    if low < high:
+        pivot_index = randomised_partition(arr, low, high)
+        randomised_quicksort(arr, low, pivot_index)
+        randomised_quicksort(arr, pivot_index + 1, high)
+    print("Output of Randomized Quick Sort : ", arr)
 
-    # sorting items by cost
-    iVal.sort(key=lambda x: x.cost, reverse=True)
+n = int(input("Enter the number of elements to be entered in the array: "))
+user_input = input("Enter the elements separated by a space: ")
+user_array = list(map(int, user_input.split()))
 
-    totalValue = 0
-    for i in iVal:
-        curWt = i.wt
-        curVal = i.val
-        if capacity - curWt >= 0:
-            capacity -= curWt
-            totalValue += curVal
-        else:
-            fraction = capacity / curWt
-            totalValue += curVal * fraction
-            capacity = int(capacity - (curWt * fraction))
-            break
-    return totalValue
+deterministic_array = user_array.copy()
+randomised_array = user_array.copy()
 
+start_time = time.time()
+deterministic_quicksort(deterministic_array, 0, n-1)
+deterministic_time = time.time() - start_time
 
-if __name__ == "__main__":
-    wt = [10, 40, 20, 30]
-    val = [60, 40, 100, 120]
-    capacity = 50
+start_time = time.time()
+randomised_quicksort(randomised_array, 0, n-1)
+randomised_time = time.time() - start_time
 
-    # Function call
-    maxValue = fractionalKnapSack(wt, val, capacity)
-    print("Maximum value in Knapsack =", maxValue)
-
-"""
-OUTPUT:
-
-Maximum value in Knapsack = 240.0
-"""
+print("Deterministic quick sort time: ", deterministic_time)
+print("Randomised quick sort time: ", randomised_time)
